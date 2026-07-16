@@ -23,7 +23,7 @@ export default function Navbar() {
             height={40}
             className="rounded-full"
           />
-          <span className="font-display text-xl tracking-wide">
+          <span className="font-display text-xl tracking-wide sm:text-xl">
             MAINSTREAM<span className="text-mainstream-orange">.</span>
           </span>
         </a>
