@@ -3,7 +3,7 @@ import Image from "next/image";
 export default function Footer() {
   return (
     <footer id="join" className="border-t border-court-line bg-court-panel">
-      <div className="mx-auto max-w-6xl px-6 py-16">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-16">
         <div className="grid gap-10 md:grid-cols-[1.2fr_1fr_1fr]">
           <div>
             <div className="flex items-center gap-3">
@@ -70,7 +70,7 @@ export default function Footer() {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-court-line pt-6 text-xs text-white/30 md:flex-row">
           <p>© {new Date().getFullYear()} Mainstream Basketball Club. All rights reserved.</p>
-          <p>Combine · Draft Night · Championship</p>
+          <p></p>
         </div>
       </div>
     </footer>

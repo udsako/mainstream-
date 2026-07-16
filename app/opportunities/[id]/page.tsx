@@ -16,9 +16,10 @@ function formatDate(iso: string) {
 export default async function OpportunityDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const opportunity = await getById(params.id);
+  const { id } = await params;
+  const opportunity = await getById(id);
   if (!opportunity) notFound();
 
   const open = isOpen(opportunity);

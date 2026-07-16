@@ -12,6 +12,7 @@ const EMPTY_FORM = {
   description: "",
   deadline: "",
   keepVisibleAfterDeadline: true,
+  subEventsText: "",
 };
 
 interface CurrentUser {
@@ -20,24 +21,43 @@ interface CurrentUser {
   email: string;
 }
 
+interface Application {
+  id: string;
+  opportunity_title: string;
+  registration_type: string | null;
+  name: string;
+  email: string;
+  phone: string | null;
+  message: string | null;
+  created_at: string;
+}
+
 export default function AdminPage() {
   const [checkingSession, setCheckingSession] = useState(true);
   const [user, setUser] = useState<CurrentUser | null>(null);
 
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
   const [authForm, setAuthForm] = useState({ name: "", email: "", password: "", inviteCode: "" });
   const [authError, setAuthError] = useState("");
   const [authLoading, setAuthLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotStatus, setForgotStatus] = useState<"idle" | "sending" | "sent">("idle");
+  const [forgotError, setForgotError] = useState("");
 
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitError, setSubmitError] = useState("");
 
-  // Editing state — which opportunity id is currently being edited, and its draft values.
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState(EMPTY_FORM);
   const [editError, setEditError] = useState("");
+
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [applicationsLoading, setApplicationsLoading] = useState(false);
+  const [applicationsError, setApplicationsError] = useState("");
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -47,7 +67,10 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
-    if (user) loadOpportunities();
+    if (user) {
+      loadOpportunities();
+      loadApplications();
+    }
   }, [user]);
 
   async function loadOpportunities() {
@@ -55,6 +78,19 @@ export default function AdminPage() {
     const res = await fetch("/api/opportunities");
     setOpportunities(await res.json());
     setLoading(false);
+  }
+
+  async function loadApplications() {
+    setApplicationsLoading(true);
+    setApplicationsError("");
+    const res = await fetch("/api/applications");
+    if (!res.ok) {
+      setApplicationsError("Couldn't load registrations.");
+      setApplicationsLoading(false);
+      return;
+    }
+    setApplications(await res.json());
+    setApplicationsLoading(false);
   }
 
   async function handleAuthSubmit(e: React.FormEvent) {
@@ -65,7 +101,7 @@ export default function AdminPage() {
     const endpoint = mode === "login" ? "/api/auth/login" : "/api/auth/signup";
     const payload =
       mode === "login"
-        ? { email: authForm.email, password: authForm.password }
+        ? { email: authForm.email, password: authForm.password, rememberMe }
         : authForm;
 
     const res = await fetch(endpoint, {
@@ -83,10 +119,32 @@ export default function AdminPage() {
     setUser(data);
   }
 
+  async function handleForgotPassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (!forgotEmail.trim()) {
+      setForgotError("Enter your email first.");
+      return;
+    }
+    setForgotError("");
+    setForgotStatus("sending");
+    const res = await fetch("/api/auth/forgot-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: forgotEmail.trim() }),
+    });
+    if (!res.ok) {
+      setForgotStatus("idle");
+      setForgotError("Something went wrong sending that. Try again.");
+      return;
+    }
+    setForgotStatus("sent");
+  }
+
   async function handleLogout() {
     await fetch("/api/auth/logout", { method: "POST" });
     setUser(null);
     setOpportunities([]);
+    setApplications([]);
   }
 
   async function handleAdd(e: React.FormEvent) {
@@ -101,7 +159,13 @@ export default function AdminPage() {
     const res = await fetch("/api/opportunities", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify({
+        ...form,
+        subEvents: form.subEventsText
+          .split("\n")
+          .map((line) => line.trim())
+          .filter(Boolean),
+      }),
     });
 
     if (!res.ok) {
@@ -129,6 +193,7 @@ export default function AdminPage() {
       description: o.description,
       deadline: o.deadline,
       keepVisibleAfterDeadline: !!o.keepVisibleAfterDeadline,
+      subEventsText: (o.subEvents || []).join("\n"),
     });
   }
 
@@ -147,7 +212,13 @@ export default function AdminPage() {
     const res = await fetch(`/api/opportunities/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(editForm),
+      body: JSON.stringify({
+        ...editForm,
+        subEvents: editForm.subEventsText
+          .split("\n")
+          .map((line) => line.trim())
+          .filter(Boolean),
+      }),
     });
 
     if (!res.ok) {
@@ -159,6 +230,15 @@ export default function AdminPage() {
     loadOpportunities();
   }
 
+  function formatDateTime(iso: string) {
+    return new Date(iso).toLocaleString("en-GB", {
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
   if (checkingSession) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-court-black">
@@ -168,6 +248,59 @@ export default function AdminPage() {
   }
 
   if (!user) {
+    if (mode === "forgot") {
+      return (
+        <main className="flex min-h-screen items-center justify-center bg-court-black px-6">
+          <form
+            onSubmit={handleForgotPassword}
+            className="w-full max-w-sm rounded-md border border-court-line bg-court-panel p-8"
+          >
+            <h1 className="font-display text-2xl text-white">Reset password</h1>
+
+            {forgotStatus === "sent" ? (
+              <p className="mt-4 text-sm text-white/60">
+                If an account exists for that email, a reset link has been
+                sent. It&apos;s valid for 30 minutes.
+              </p>
+            ) : (
+              <>
+                <p className="mt-1 text-sm text-white/50">
+                  Enter your admin email and we&apos;ll send a reset link.
+                </p>
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  className="mt-4 w-full rounded-sm border border-court-line bg-court-black px-4 py-2.5 text-sm text-white outline-none focus-visible:border-mainstream-orange"
+                />
+                {forgotError && <p className="mt-2 text-xs text-red-400">{forgotError}</p>}
+                <button
+                  type="submit"
+                  disabled={forgotStatus === "sending"}
+                  className="mt-5 w-full rounded-sm bg-mainstream-orange px-6 py-3 text-sm font-semibold uppercase tracking-widest text-court-black transition hover:bg-mainstream-hot disabled:opacity-50"
+                >
+                  {forgotStatus === "sending" ? "Sending…" : "Send reset link"}
+                </button>
+              </>
+            )}
+
+            <button
+              type="button"
+              onClick={() => {
+                setMode("login");
+                setForgotStatus("idle");
+                setForgotError("");
+              }}
+              className="mt-4 w-full text-center text-xs uppercase tracking-widest text-white/50 hover:text-mainstream-orange"
+            >
+              ← Back to login
+            </button>
+          </form>
+        </main>
+      );
+    }
+
     return (
       <main className="flex min-h-screen items-center justify-center bg-court-black px-6">
         <form
@@ -236,6 +369,26 @@ export default function AdminPage() {
               Password: at least 8 characters. Invite code is required and given
               to you separately — this isn&apos;t public signup.
             </p>
+          )}
+
+          {mode === "login" && (
+            <div className="mt-3 flex items-center justify-between">
+              <label className="flex items-center gap-2 text-xs text-white/60">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
+                Remember me
+              </label>
+              <button
+                type="button"
+                onClick={() => setMode("forgot")}
+                className="text-xs text-white/50 hover:text-mainstream-orange"
+              >
+                Forgot password?
+              </button>
+            </div>
           )}
 
           {authError && <p className="mt-3 text-xs text-red-400">{authError}</p>}
@@ -312,6 +465,23 @@ export default function AdminPage() {
             rows={2}
             className="rounded-sm border border-court-line bg-court-black px-4 py-2.5 text-sm text-white outline-none focus-visible:border-mainstream-orange sm:col-span-2"
           />
+          <div className="sm:col-span-2">
+            <label className="mb-1 block text-xs uppercase tracking-widest text-white/50">
+              Sub-events (optional — one per line)
+            </label>
+            <textarea
+              placeholder={"Draft Combine\nDraft Night\nChampionship Games\nAward Ceremony"}
+              value={form.subEventsText}
+              onChange={(e) => setForm({ ...form, subEventsText: e.target.value })}
+              rows={4}
+              className="w-full rounded-sm border border-court-line bg-court-black px-4 py-2.5 text-sm text-white outline-none focus-visible:border-mainstream-orange"
+            />
+            <p className="mt-1 text-xs text-white/30">
+              If this posting bundles multiple events into one registration
+              (like a combine + draft night + championship + awards), list
+              each one on its own line. Leave blank for a standalone event.
+            </p>
+          </div>
           <label className="flex flex-col gap-1 text-xs uppercase tracking-widest text-white/50">
             Closes on
             <input
@@ -357,6 +527,9 @@ export default function AdminPage() {
                           <span className="text-mainstream-orange">Open</span>
                         ) : (
                           <span>Closed</span>
+                        )}
+                        {o.subEvents && o.subEvents.length > 0 && (
+                          <> · {o.subEvents.length} bundled events</>
                         )}
                       </p>
                     </div>
@@ -405,6 +578,13 @@ export default function AdminPage() {
                       className="rounded-sm border border-court-line bg-court-black px-3 py-2 text-sm text-white outline-none focus-visible:border-mainstream-orange sm:col-span-2"
                       placeholder="Description"
                     />
+                    <textarea
+                      value={editForm.subEventsText}
+                      onChange={(e) => setEditForm({ ...editForm, subEventsText: e.target.value })}
+                      rows={3}
+                      className="rounded-sm border border-court-line bg-court-black px-3 py-2 text-sm text-white outline-none focus-visible:border-mainstream-orange sm:col-span-2"
+                      placeholder="Sub-events, one per line (optional)"
+                    />
                     <input
                       type="date"
                       value={editForm.deadline}
@@ -441,6 +621,56 @@ export default function AdminPage() {
               </div>
             );
           })}
+        </div>
+
+        {/* Registrations / applications */}
+        <div className="mt-16">
+          <div className="flex items-center justify-between">
+            <h2 className="font-display text-2xl text-white">Registrations</h2>
+            <button
+              onClick={loadApplications}
+              className="rounded-sm border border-court-line px-4 py-2 text-xs uppercase tracking-widest text-white/60 hover:border-mainstream-orange hover:text-mainstream-orange"
+            >
+              Refresh
+            </button>
+          </div>
+          <p className="mt-2 text-sm text-white/50">
+            Everyone who submitted a form on an opportunity or contact page.
+          </p>
+
+          <div className="mt-6 space-y-3">
+            {applicationsLoading && <p className="text-white/50">Loading…</p>}
+            {applicationsError && <p className="text-sm text-red-400">{applicationsError}</p>}
+            {!applicationsLoading && !applicationsError && applications.length === 0 && (
+              <p className="text-white/50">No registrations yet.</p>
+            )}
+            {applications.map((a) => (
+              <div key={a.id} className="rounded-md border border-court-line bg-court-panel p-4">
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div>
+                    <p className="font-display text-lg text-white">{a.name}</p>
+                    <p className="font-mono text-xs text-white/40">
+                      {a.opportunity_title}
+                      {a.registration_type && (
+                        <>
+                          {" · "}
+                          <span className="text-mainstream-orange">
+                            {a.registration_type === "spectator" ? "Spectator" : "Participant"}
+                          </span>
+                        </>
+                      )}
+                    </p>
+                  </div>
+                  <span className="font-mono text-xs text-white/30">{formatDateTime(a.created_at)}</span>
+                </div>
+                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-white/60">
+                  <a href={`mailto:${a.email}`} className="hover:text-mainstream-orange">{a.email}</a>
+                  {a.phone && <a href={`tel:${a.phone}`} className="hover:text-mainstream-orange">{a.phone}</a>}
+                </div>
+                {a.message && <p className="mt-2 text-sm text-white/50">{a.message}</p>}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </main>

@@ -3,12 +3,12 @@ import Image from "next/image";
 export default function Hero() {
   return (
     <section id="top" className="relative overflow-hidden pt-16">
-      <div className="mx-auto grid max-w-6xl gap-10 px-6 py-20 md:grid-cols-[1.3fr_1fr] md:py-32">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 py-12 sm:py-20 md:grid-cols-[1.3fr_1fr] md:py-32">
         <div>
           <p className="mb-4 font-mono text-xs uppercase tracking-[0.3em] text-mainstream-orange">
             Mainstream Basketball Club
           </p>
-          <h1 className="font-display text-6xl leading-[0.95] tracking-wide text-white sm:text-7xl md:text-8xl">
+          <h1 className="font-display text-4xl leading-[0.95] tracking-wide text-white sm:text-6xl md:text-7xl lg:text-8xl">
             ONE CLUB.
             <br />
             <span className="jersey-outline">EVERY LEVEL.</span>

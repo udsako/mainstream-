@@ -34,6 +34,16 @@ export async function findUserByEmail(email: string): Promise<User | undefined> 
   return data ? fromRow(data) : undefined;
 }
 
+export async function findUserById(id: string): Promise<User | undefined> {
+  const { data, error } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  return data ? fromRow(data) : undefined;
+}
+
 export async function createUser(user: User): Promise<void> {
   const { error } = await supabase.from("users").insert({
     id: user.id,
@@ -42,5 +52,13 @@ export async function createUser(user: User): Promise<void> {
     password_hash: user.passwordHash,
     created_at: user.createdAt,
   });
+  if (error) throw new Error(error.message);
+}
+
+export async function updatePassword(id: string, passwordHash: string): Promise<void> {
+  const { error } = await supabase
+    .from("users")
+    .update({ password_hash: passwordHash })
+    .eq("id", id);
   if (error) throw new Error(error.message);
 }

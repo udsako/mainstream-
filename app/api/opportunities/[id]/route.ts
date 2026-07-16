@@ -4,9 +4,10 @@ import { getSessionFromRequest } from "@/lib/auth";
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const opportunity = await getById(params.id);
+  const { id } = await params;
+  const opportunity = await getById(id);
   if (!opportunity) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
@@ -15,28 +16,30 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = getSessionFromRequest(req);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const { id } = await params;
   const body = await req.json();
-  await update(params.id, body);
-  const updated = await getById(params.id);
+  await update(id, body);
+  const updated = await getById(id);
   return NextResponse.json(updated);
 }
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const session = getSessionFromRequest(req);
   if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  await remove(params.id);
+  const { id } = await params;
+  await remove(id);
   return NextResponse.json({ ok: true });
 }

@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { title, category, venue, description, deadline, keepVisibleAfterDeadline } = body;
+  const { title, category, venue, description, deadline, keepVisibleAfterDeadline, subEvents } = body;
 
   if (!title || !category || !venue || !description || !deadline) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -29,6 +29,7 @@ export async function POST(req: NextRequest) {
     description,
     deadline,
     keepVisibleAfterDeadline: !!keepVisibleAfterDeadline,
+    subEvents: Array.isArray(subEvents) ? subEvents.filter(Boolean) : undefined,
   };
 
   await add(opportunity);

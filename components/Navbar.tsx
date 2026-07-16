@@ -14,7 +14,7 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-court-line bg-court-black/90 backdrop-blur">
-      <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+      <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 sm:px-6 py-4">
         <a href="#top" className="flex items-center gap-3">
           <Image
             src="/logo.jpg"

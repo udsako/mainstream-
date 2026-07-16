@@ -7,8 +7,14 @@ export interface Opportunity {
   venue: string;
   description: string;
   deadline: string; // ISO date string, e.g. "2026-08-15"
-  /** If true, this posting stays visible after its deadline passes (marked Closed) instead of being hidden. */
   keepVisibleAfterDeadline?: boolean;
+  /**
+   * Optional list of sub-events bundled under this one posting —
+   * e.g. ["Draft Combine", "Draft Night", "Championship Games", "Award Ceremony"].
+   * One registration on this opportunity covers everything listed here.
+   * Leave empty/undefined for a standalone single-event posting.
+   */
+  subEvents?: string[];
 }
 
 export function isOpen(opportunity: Opportunity): boolean {

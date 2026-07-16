@@ -5,9 +5,13 @@ import { Opportunity } from "@/lib/opportunities";
 
 const IS_SPONSOR_TYPE = (category: string) => category === "Sponsorship" || category === "Volunteer";
 
+type RegistrationType = "player" | "viewer";
+
 export default function OpportunityApplicationForm({ opportunity }: { opportunity: Opportunity }) {
   const sponsorStyle = IS_SPONSOR_TYPE(opportunity.category);
+  const hasBundle = !!opportunity.subEvents && opportunity.subEvents.length > 0;
 
+  const [registrationType, setRegistrationType] = useState<RegistrationType>("player");
   const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
@@ -21,6 +25,7 @@ export default function OpportunityApplicationForm({ opportunity }: { opportunit
         body: JSON.stringify({
           opportunityId: opportunity.id,
           opportunityTitle: opportunity.title,
+          registrationType: sponsorStyle ? undefined : registrationType,
           ...form,
         }),
       });
@@ -39,6 +44,8 @@ export default function OpportunityApplicationForm({ opportunity }: { opportunit
         <p className="mt-2 text-sm text-white/60">
           {sponsorStyle
             ? "Thanks for reaching out — we'll be in touch shortly."
+            : registrationType === "viewer"
+            ? "Your spot to attend is confirmed — we'll follow up with details."
             : "Your registration is in — we'll follow up with next steps."}
         </p>
       </div>
@@ -53,8 +60,48 @@ export default function OpportunityApplicationForm({ opportunity }: { opportunit
       <p className="mt-1 text-sm text-white/50">
         {sponsorStyle
           ? "Tell us a bit about you or your organization."
+          : hasBundle
+          ? "One registration covers all events in this package."
           : "Fill this in and we'll follow up with details."}
       </p>
+
+      {!sponsorStyle && (
+        <div className="mt-5">
+          <label className="mb-2 block font-mono text-xs uppercase tracking-widest text-white/50">
+            I am registering as a
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setRegistrationType("player")}
+              className={`rounded-sm border px-4 py-3 text-left text-sm transition ${
+                registrationType === "player"
+                  ? "border-mainstream-orange bg-mainstream-orange/10 text-white"
+                  : "border-court-line text-white/50 hover:border-white/30"
+              }`}
+            >
+              <span className="block font-semibold">Player</span>
+              <span className="mt-0.5 block text-xs text-white/40">
+                Trying out / competing
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setRegistrationType("viewer")}
+              className={`rounded-sm border px-4 py-3 text-left text-sm transition ${
+                registrationType === "viewer"
+                  ? "border-mainstream-orange bg-mainstream-orange/10 text-white"
+                  : "border-court-line text-white/50 hover:border-white/30"
+              }`}
+            >
+              <span className="block font-semibold">Viewer</span>
+              <span className="mt-0.5 block text-xs text-white/40">
+                Attending to watch
+              </span>
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
@@ -109,7 +156,13 @@ export default function OpportunityApplicationForm({ opportunity }: { opportunit
         disabled={status === "sending"}
         className="mt-5 w-full rounded-sm bg-mainstream-orange px-6 py-3 text-sm font-semibold uppercase tracking-widest text-court-black transition hover:bg-mainstream-hot disabled:opacity-50"
       >
-        {status === "sending" ? "Sending…" : sponsorStyle ? "Send message" : "Submit registration"}
+        {status === "sending"
+          ? "Sending…"
+          : sponsorStyle
+          ? "Send message"
+          : registrationType === "viewer"
+          ? "Register to attend"
+          : "Submit registration"}
       </button>
       {status === "error" && (
         <p className="mt-3 text-center text-xs text-red-400">
