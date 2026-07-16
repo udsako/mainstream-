@@ -467,7 +467,7 @@ export default function AdminPage() {
           />
           <div className="sm:col-span-2">
             <label className="mb-1 block text-xs uppercase tracking-widest text-white/50">
-              Sub-events (optional — one per line)
+              Sub-events 
             </label>
             <textarea
               placeholder={"Draft Combine\nDraft Night\nChampionship Games\nAward Ceremony"}
