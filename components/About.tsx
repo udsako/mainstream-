@@ -11,7 +11,7 @@ export default function About() {
             <br />A community built on the game.
           </h2>
           <p className="mt-6 text-white/60">
-            Mainstream Basketball Club exists to develop players and grow the
+            Mainstream Basketball exists to develop players and grow the
             game — through year-round training, combines, tournaments, and
             partnerships with sponsors who believe in what we&apos;re
             building. Whatever&apos;s currently open, you&apos;ll find it

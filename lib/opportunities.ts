@@ -5,6 +5,7 @@ export interface Opportunity {
   title: string;
   category: OpportunityCategory;
   venue: string;
+  ticketLink?: string;
   description: string;
   deadline: string; // ISO date string, e.g. "2026-08-15"
   keepVisibleAfterDeadline?: boolean;

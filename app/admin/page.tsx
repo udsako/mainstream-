@@ -13,6 +13,7 @@ const EMPTY_FORM = {
   deadline: "",
   keepVisibleAfterDeadline: true,
   subEventsText: "",
+  ticketLink: "",
 };
 
 interface CurrentUser {
@@ -58,6 +59,7 @@ export default function AdminPage() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [applicationsLoading, setApplicationsLoading] = useState(false);
   const [applicationsError, setApplicationsError] = useState("");
+  const [removingAppId, setRemovingAppId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -194,6 +196,7 @@ export default function AdminPage() {
       deadline: o.deadline,
       keepVisibleAfterDeadline: !!o.keepVisibleAfterDeadline,
       subEventsText: (o.subEvents || []).join("\n"),
+      ticketLink: o.ticketLink || "",
     });
   }
 
@@ -228,6 +231,18 @@ export default function AdminPage() {
 
     setEditingId(null);
     loadOpportunities();
+  }
+
+  async function handleDeleteApplication(id: string) {
+    if (!confirm("Remove this registration? This can't be undone.")) return;
+    setRemovingAppId(id);
+    const res = await fetch(`/api/applications/${id}`, { method: "DELETE" });
+    setRemovingAppId(null);
+    if (!res.ok) {
+      setApplicationsError("Failed to remove that registration. Your session may have expired — try logging in again.");
+      return;
+    }
+    setApplications((prev) => prev.filter((a) => a.id !== id));
   }
 
   function formatDateTime(iso: string) {
@@ -482,6 +497,22 @@ export default function AdminPage() {
               each one on its own line. Leave blank for a standalone event.
             </p>
           </div>
+          <div className="sm:col-span-2">
+            <label className="mb-1 block text-xs uppercase tracking-widest text-white/50">
+              Viewer ticket link (optional — e.g. Jetron)
+            </label>
+            <input
+              placeholder="https://jtr.rsvp/your-event"
+              value={form.ticketLink}
+              onChange={(e) => setForm({ ...form, ticketLink: e.target.value })}
+              className="w-full rounded-sm border border-court-line bg-court-black px-4 py-2.5 text-sm text-white outline-none focus-visible:border-mainstream-orange"
+            />
+            <p className="mt-1 text-xs text-white/30">
+              If set, anyone registering as a Viewer gets sent here to buy a
+              ticket instead of the free form. Leave blank for free/no-ticket
+              events.
+            </p>
+          </div>
           <label className="flex flex-col gap-1 text-xs uppercase tracking-widest text-white/50">
             Closes on
             <input
@@ -586,6 +617,12 @@ export default function AdminPage() {
                       placeholder="Sub-events, one per line (optional)"
                     />
                     <input
+                      value={editForm.ticketLink}
+                      onChange={(e) => setEditForm({ ...editForm, ticketLink: e.target.value })}
+                      className="rounded-sm border border-court-line bg-court-black px-3 py-2 text-sm text-white outline-none focus-visible:border-mainstream-orange sm:col-span-2"
+                      placeholder="Viewer ticket link (optional — e.g. Jetron)"
+                    />
+                    <input
                       type="date"
                       value={editForm.deadline}
                       onChange={(e) => setEditForm({ ...editForm, deadline: e.target.value })}
@@ -655,13 +692,22 @@ export default function AdminPage() {
                         <>
                           {" · "}
                           <span className="text-mainstream-orange">
-                            {a.registration_type === "spectator" ? "Spectator" : "Participant"}
+                            {a.registration_type === "viewer" ? "Spectator" : "Participant"}
                           </span>
                         </>
                       )}
                     </p>
                   </div>
-                  <span className="font-mono text-xs text-white/30">{formatDateTime(a.created_at)}</span>
+                  <div className="flex items-center gap-3">
+                    <span className="font-mono text-xs text-white/30">{formatDateTime(a.created_at)}</span>
+                    <button
+                      onClick={() => handleDeleteApplication(a.id)}
+                      disabled={removingAppId === a.id}
+                      className="rounded-sm border border-red-400/40 px-3 py-1.5 text-xs uppercase tracking-widest text-red-400 hover:bg-red-400/10 disabled:opacity-50"
+                    >
+                      {removingAppId === a.id ? "Removing…" : "Remove"}
+                    </button>
+                  </div>
                 </div>
                 <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-white/60">
                   <a href={`mailto:${a.email}`} className="hover:text-mainstream-orange">{a.email}</a>

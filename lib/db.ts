@@ -10,6 +10,8 @@ function fromRow(row: any): Opportunity {
     description: row.description,
     deadline: row.deadline,
     keepVisibleAfterDeadline: row.keep_visible_after_deadline,
+    subEvents: row.sub_events || undefined,
+    ticketLink: row.ticket_link || undefined,
   };
 }
 
@@ -43,6 +45,8 @@ export async function add(opportunity: Opportunity): Promise<void> {
     description: opportunity.description,
     deadline: opportunity.deadline,
     keep_visible_after_deadline: opportunity.keepVisibleAfterDeadline ?? false,
+    sub_events: opportunity.subEvents && opportunity.subEvents.length > 0 ? opportunity.subEvents : null,
+    ticket_link: opportunity.ticketLink || null,
   });
   if (error) throw new Error(error.message);
 }
@@ -56,6 +60,12 @@ export async function update(id: string, updates: Partial<Opportunity>): Promise
   if (updates.deadline !== undefined) payload.deadline = updates.deadline;
   if (updates.keepVisibleAfterDeadline !== undefined) {
     payload.keep_visible_after_deadline = updates.keepVisibleAfterDeadline;
+  }
+  if (updates.subEvents !== undefined) {
+    payload.sub_events = updates.subEvents.length > 0 ? updates.subEvents : null;
+  }
+  if (updates.ticketLink !== undefined) {
+    payload.ticket_link = updates.ticketLink || null;
   }
 
   const { error } = await supabase.from("opportunities").update(payload).eq("id", id);

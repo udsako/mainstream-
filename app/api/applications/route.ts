@@ -30,22 +30,49 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
+  const normalizedEmail = email.trim().toLowerCase();
+
+  // Block a second "player" registration for the same opportunity + email.
+  if (opportunityId && registrationType === "player") {
+    const { data: existing, error: lookupError } = await supabase
+      .from("applications")
+      .select("id")
+      .eq("opportunity_id", opportunityId)
+      .eq("registration_type", "player")
+      .ilike("email", normalizedEmail)
+      .maybeSingle();
+
+    if (lookupError) {
+      console.error("Supabase duplicate-check error:", lookupError);
+    }
+
+    if (existing) {
+      return NextResponse.json(
+        { error: "This email is already registered as a player for this event." },
+        { status: 409 }
+      );
+    }
+  }
+
   const record = {
     id: `app_${Date.now()}`,
     opportunity_id: opportunityId || null,
     opportunity_title: opportunityTitle,
     registration_type: registrationType || null,
     name,
-    email,
+    email: normalizedEmail,
     phone: phone || null,
     message: message || null,
   };
 
   const { error: dbError } = await supabase.from("applications").insert(record);
-  if (dbError) console.error("Supabase insert error:", dbError);
+  if (dbError) {
+    console.error("Supabase insert error:", dbError);
+    return NextResponse.json({ error: "Failed to save registration" }, { status: 500 });
+  }
 
   const typeLine = registrationType
-    ? `Registering as: ${registrationType === "spectator" ? "Spectator (attending to watch)" : "Participant (competing)"}\n`
+    ? `Registering as: ${registrationType === "viewer" ? "Spectator (attending to watch)" : "Participant (competing)"}\n`
     : "";
 
   try {
