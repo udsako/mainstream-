@@ -25,6 +25,12 @@ export const metadata: Metadata = {
   title: "Mainstream Basketball Club",
   description:
     "Mainstream Basketball Club — draft combine, draft night, and championship. Built on hustle.",
+
+    icons: {
+    icon: "/icon.png",
+    apple: "/apple-icon.png",
+  },
+
 };
 
 export default function RootLayout({
