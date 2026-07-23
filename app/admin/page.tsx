@@ -254,6 +254,41 @@ export default function AdminPage() {
     });
   }
 
+  function exportApplicationsToCsv() {
+    const headers = ["Name", "Email", "Phone", "Opportunity", "Registration Type", "Message", "Submitted"];
+
+    function escapeCell(value: string): string {
+      if (/[",\n]/.test(value)) {
+        return `"${value.replace(/"/g, '""')}"`;
+      }
+      return value;
+    }
+
+    const rows = applications.map((a) => [
+      a.name,
+      a.email,
+      a.phone || "",
+      a.opportunity_title,
+      a.registration_type === "viewer" ? "Spectator" : a.registration_type === "player" ? "Participant" : "",
+      a.message || "",
+      new Date(a.created_at).toLocaleString("en-GB"),
+    ]);
+
+    const csv = [headers, ...rows]
+      .map((row) => row.map((cell) => escapeCell(String(cell))).join(","))
+      .join("\r\n");
+
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `mainstream-registrations-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
   if (checkingSession) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-court-black">
@@ -664,12 +699,21 @@ export default function AdminPage() {
         <div className="mt-16">
           <div className="flex items-center justify-between">
             <h2 className="font-display text-2xl text-white">Registrations</h2>
-            <button
-              onClick={loadApplications}
-              className="rounded-sm border border-court-line px-4 py-2 text-xs uppercase tracking-widest text-white/60 hover:border-mainstream-orange hover:text-mainstream-orange"
-            >
-              Refresh
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={exportApplicationsToCsv}
+                disabled={applications.length === 0}
+                className="rounded-sm border border-mainstream-orange px-4 py-2 text-xs uppercase tracking-widest text-mainstream-orange hover:bg-mainstream-orange hover:text-court-black disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-mainstream-orange"
+              >
+                Export CSV
+              </button>
+              <button
+                onClick={loadApplications}
+                className="rounded-sm border border-court-line px-4 py-2 text-xs uppercase tracking-widest text-white/60 hover:border-mainstream-orange hover:text-mainstream-orange"
+              >
+                Refresh
+              </button>
+            </div>
           </div>
           <p className="mt-2 text-sm text-white/50">
             Everyone who submitted a form on an opportunity or contact page.
