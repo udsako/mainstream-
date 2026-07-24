@@ -48,11 +48,14 @@ function ResetPasswordForm() {
 
   if (status === "done") {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-court-black px-6">
+      <main className="flex min-h-screen items-center justify-center bg-court-black px-4 sm:px-6">
         <div className="w-full max-w-sm rounded-md border border-court-line bg-court-panel p-8 text-center">
           <p className="font-display text-xl text-white">Password updated</p>
           <p className="mt-2 text-sm text-white/60">You can now log in with your new password.</p>
-          <a href="/admin" className="mt-6 inline-block rounded-sm bg-mainstream-orange px-6 py-3 text-sm font-semibold uppercase tracking-widest text-court-black transition hover:bg-mainstream-hot">
+          <a
+            href="/admin"
+            className="mt-6 inline-block rounded-sm bg-mainstream-orange px-4 sm:px-6 py-3 text-sm font-semibold uppercase tracking-widest text-court-black transition hover:bg-mainstream-hot"
+          >
             Go to login
           </a>
         </div>
@@ -61,8 +64,11 @@ function ResetPasswordForm() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-court-black px-6">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm rounded-md border border-court-line bg-court-panel p-8">
+    <main className="flex min-h-screen items-center justify-center bg-court-black px-4 sm:px-6">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-sm rounded-md border border-court-line bg-court-panel p-8"
+      >
         <h1 className="font-display text-2xl text-white">Set a new password</h1>
         <p className="mt-1 text-sm text-white/50">This link is valid for 30 minutes.</p>
 
@@ -78,7 +84,7 @@ function ResetPasswordForm() {
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             aria-label={showPassword ? "Hide password" : "Show password"}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-mainstream-orange"
           >
             {showPassword ? (
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -108,7 +114,7 @@ function ResetPasswordForm() {
         <button
           type="submit"
           disabled={status === "sending"}
-          className="mt-5 w-full rounded-sm bg-mainstream-orange px-6 py-3 text-sm font-semibold uppercase tracking-widest text-court-black transition hover:bg-mainstream-hot disabled:opacity-50"
+          className="mt-5 w-full rounded-sm bg-mainstream-orange px-4 sm:px-6 py-3 text-sm font-semibold uppercase tracking-widest text-court-black transition hover:bg-mainstream-hot disabled:opacity-50"
         >
           {status === "sending" ? "Saving…" : "Reset password"}
         </button>
@@ -119,7 +125,13 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<main className="flex min-h-screen items-center justify-center bg-court-black"><p className="text-white/50">Loading…</p></main>}>
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-court-black">
+          <p className="text-white/50">Loading…</p>
+        </main>
+      }
+    >
       <ResetPasswordForm />
     </Suspense>
   );

@@ -98,3 +98,17 @@ button:focus-visible {
   box-shadow: 0 4px 24px rgba(241, 90, 36, 0.35);
   transform: translateY(-1px);
 }
+
+/* Chrome (and other browsers) force a light background + dark text on
+   autofilled fields by default, which breaks the dark theme and makes
+   icons/text inside those fields hard to see. This forces autofilled
+   inputs to keep looking like every other input on the site. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0px 1000px #0A0A0A inset !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+  caret-color: #FFFFFF;
+  transition: background-color 5000s ease-in-out 0s;
+}
