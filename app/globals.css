@@ -14,10 +14,25 @@ html {
 
 body {
   background-color: #0A0A0A;
+  background-image:
+    radial-gradient(circle at 15% 0%, rgba(241, 90, 36, 0.06), transparent 40%),
+    radial-gradient(circle at 85% 20%, rgba(241, 90, 36, 0.04), transparent 35%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420' viewBox='0 0 420 420'%3E%3Cg fill='none' stroke='%23F15A24' stroke-width='1' stroke-opacity='0.05'%3E%3Ccircle cx='210' cy='210' r='70'/%3E%3Ccircle cx='210' cy='210' r='2' fill='%23F15A24' fill-opacity='0.05'/%3E%3Cline x1='0' y1='210' x2='420' y2='210'/%3E%3Cpath d='M 0 130 A 80 80 0 0 1 0 290'/%3E%3Cpath d='M 420 130 A 80 80 0 0 0 420 290'/%3E%3Crect x='0' y='150' width='60' height='120'/%3E%3Crect x='360' y='150' width='60' height='120'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: no-repeat, no-repeat, repeat;
+  background-size: auto, auto, 420px 420px;
   color: #FFFFFF;
   font-family: var(--font-body);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Display headings read tighter and sharper at Anton's weight */
+h1, h2, h3, .font-display {
+  letter-spacing: 0.01em;
+}
+
+p {
+  line-height: 1.65;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -63,4 +78,23 @@ button:focus-visible {
 .stat-mono {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
+}
+
+/* Shared card treatment: subtle lift + glow on hover, used across
+   opportunity cards, about cards, and the hero info card. */
+.mc-card {
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+.mc-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(241, 90, 36, 0.08);
+}
+
+/* Shared primary button glow */
+.mc-btn-primary {
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+.mc-btn-primary:hover {
+  box-shadow: 0 4px 24px rgba(241, 90, 36, 0.35);
+  transform: translateY(-1px);
 }
