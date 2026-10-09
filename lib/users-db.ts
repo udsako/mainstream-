@@ -20,27 +20,37 @@ function fromRow(row: any): User {
 
 export async function getAllUsers(): Promise<User[]> {
   const { data, error } = await supabase.from("users").select("*");
+
   if (error) throw new Error(error.message);
+
   return (data || []).map(fromRow);
 }
 
-export async function findUserByEmail(email: string): Promise<User | undefined> {
+export async function findUserByEmail(
+  email: string
+): Promise<User | undefined> {
   const { data, error } = await supabase
     .from("users")
     .select("*")
-    .ilike("email", email)
+    .ilike("email", email.trim())
     .maybeSingle();
+
   if (error) throw new Error(error.message);
+
   return data ? fromRow(data) : undefined;
 }
 
-export async function findUserById(id: string): Promise<User | undefined> {
+export async function findUserById(
+  id: string
+): Promise<User | undefined> {
   const { data, error } = await supabase
     .from("users")
     .select("*")
     .eq("id", id)
     .maybeSingle();
+
   if (error) throw new Error(error.message);
+
   return data ? fromRow(data) : undefined;
 }
 
@@ -52,13 +62,24 @@ export async function createUser(user: User): Promise<void> {
     password_hash: user.passwordHash,
     created_at: user.createdAt,
   });
+
   if (error) throw new Error(error.message);
 }
 
-export async function updatePassword(id: string, passwordHash: string): Promise<void> {
-  const { error } = await supabase
+export async function updatePassword(
+  id: string,
+  passwordHash: string
+): Promise<void> {
+  const { data, error } = await supabase
     .from("users")
     .update({ password_hash: passwordHash })
-    .eq("id", id);
+    .eq("id", id)
+    .select("id")
+    .maybeSingle();
+
   if (error) throw new Error(error.message);
+
+  if (!data) {
+    throw new Error("User not found or password was not updated.");
+  }
 }

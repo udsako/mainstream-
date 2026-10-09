@@ -5,6 +5,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase";
 
+export const dynamic = "force-dynamic";
+
 const categories = [
   { id: "tournament-2025", title: "Mainstream Basketball Tournament 2025", intro: "A look back at the tournament through event coverage, photos, and standout moments." },
   { id: "championship-2026", title: "Mainstream Basketball Championship 2026", intro: "Championship coverage, highlights, and photographs from the club’s major event." },
