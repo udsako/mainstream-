@@ -4,12 +4,9 @@ import { useState } from "react";
 import Image from "next/image";
 
 const LINKS = [
-  { label: "Home", href: "/" },
-  { label: "About Us", href: "/about" },
-  { label: "Opportunities", href: "/opportunities" },
-  { label: "Our Journey", href: "/our-journey" },
-  { label: "Support Us", href: "/support-us" },
-  { label: "Contact", href: "/contact" },
+  { label: "About", href: "/#about" },
+  { label: "Opportunities", href: "/#opportunities" },
+  { label: "Contact", href: "/#contact" },
 ];
 
 export default function Navbar() {
@@ -18,7 +15,7 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-court-line bg-court-black/90 backdrop-blur">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 sm:px-6 py-4">
-        <a href="/" className="flex items-center gap-3">
+        <a href="#top" className="flex items-center gap-3">
           <Image
             src="/logo.jpg"
             alt="Mainstream Basketball Club logo"
@@ -31,8 +28,8 @@ export default function Navbar() {
           </span>
         </a>
 
-        <div className="hidden items-center gap-6 lg:gap-8 md:flex">
-          <ul className="flex flex-wrap gap-4 lg:gap-6">
+        <div className="hidden items-center gap-10 md:flex">
+          <ul className="flex gap-8">
             {LINKS.map((link) => (
               <li key={link.href}>
                 <a
@@ -45,6 +42,12 @@ export default function Navbar() {
             ))}
           </ul>
 
+          <a
+            href="#contact"
+            className="rounded-sm border border-mainstream-orange px-5 py-2 text-sm font-semibold uppercase tracking-widest text-mainstream-orange transition hover:bg-mainstream-orange hover:text-court-black"
+          >
+            Get in touch
+          </a>
         </div>
 
         <button
@@ -60,12 +63,12 @@ export default function Navbar() {
       </nav>
 
       {open && (
-        <ul className="flex flex-col gap-4 border-t border-court-line bg-court-black px-6 py-5 md:hidden">
+        <ul className="flex flex-col gap-4 border-t border-court-line px-6 py-4 md:hidden">
           {LINKS.map((link) => (
             <li key={link.href}>
               <a
                 href={link.href}
-                className="font-body text-sm uppercase tracking-widest text-white/70 transition hover:text-mainstream-orange"
+                className="font-body text-sm uppercase tracking-widest text-white/70"
                 onClick={() => setOpen(false)}
               >
                 {link.label}

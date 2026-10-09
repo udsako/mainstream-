@@ -633,6 +633,10 @@ export default function AdminPage() {
   return (
     <main className="min-h-screen bg-court-black px-4 sm:px-6 py-10 sm:py-16">
       <div className="mx-auto max-w-4xl">
+        <a href="/admin/our-journey" className="mb-8 flex items-center justify-between gap-4 rounded-md border border-mainstream-orange/50 bg-court-panel p-5 transition hover:border-mainstream-orange">
+          <span><span className="block font-display text-xl text-white">Our Journey content</span><span className="mt-1 block text-sm text-white/50">Add event recaps, multiple links, and upload photos.</span></span>
+          <span className="shrink-0 text-xs font-semibold uppercase tracking-widest text-mainstream-orange">Manage ↗</span>
+        </a>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="font-display text-2xl text-white sm:text-3xl">Manage opportunities</h1>

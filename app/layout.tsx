@@ -22,10 +22,26 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mainstream Basketball Club",
+  title: {
+    default: "Mainstream Basketball Club | Develop. Compete. Belong.",
+    template: "%s | Mainstream Basketball Club",
+  },
   description:
-    "Mainstream Basketball Club — draft combine, draft night, and championship. Built on hustle.",
-
+    "Mainstream Basketball Club develops players, builds community through basketball, and creates opportunities to compete, grow, and connect.",
+  openGraph: {
+    title: "Mainstream Basketball Club",
+    description:
+      "Developing players and building community through basketball.",
+    type: "website",
+    images: [{ url: "/logo.jpg", alt: "Mainstream Basketball Club" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Mainstream Basketball Club",
+    description:
+      "Developing players and building community through basketball.",
+    images: ["/logo.jpg"],
+  },
 };
 
 export default function RootLayout({

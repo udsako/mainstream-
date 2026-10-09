@@ -11,10 +11,6 @@ const GALLERY_IMAGES = [
   "/gallery/4.jpg",
   "/gallery/5.jpg",
   "/gallery/6.jpg",
-  "/gallery/IMG_6874.JPG",
-  "/gallery/IMG_6876.JPG",
-  "/gallery/media day.jpg",
-  "/gallery/media day 2.jpg",
 ];
 
 function GalleryTile({ src }: { src: string }) {
@@ -36,7 +32,7 @@ function GalleryTile({ src }: { src: string }) {
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={src}
-      alt={`Mainstream Basketball Club event moment ${src.split("/").pop()}`}
+      alt="Mainstream Basketball Club"
       onError={() => setFailed(true)}
       className="aspect-square w-full rounded-md border border-court-line object-cover"
     />
@@ -52,7 +48,8 @@ export default function Gallery() {
       <h2 className="mb-4 font-display text-4xl text-white sm:text-5xl">
         From the court
       </h2>
-      <p className="mb-10 max-w-xl text-sm text-white/55">A look at the people, preparation, and moments that make the Mainstream community.</p>
+      <p className="mb-10 max-w-md text-sm text-white/50">
+      </p>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         {GALLERY_IMAGES.map((src) => (

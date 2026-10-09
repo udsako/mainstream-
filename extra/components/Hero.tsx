@@ -21,10 +21,16 @@ export default function Hero() {
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <a
-              href="/opportunities"
+              href="#opportunities"
               className="rounded-sm bg-mainstream-orange px-6 py-3 text-sm font-semibold uppercase tracking-widest text-court-black transition hover:bg-mainstream-hot"
             >
               See what&apos;s open
+            </a>
+            <a
+              href="#contact"
+              className="rounded-sm border border-white/20 px-6 py-3 text-sm font-semibold uppercase tracking-widest text-white transition hover:border-mainstream-orange hover:text-mainstream-orange"
+            >
+              Get in touch
             </a>
           </div>
         </div>
@@ -57,7 +63,7 @@ export default function Hero() {
           </ul>
 
           <div className="border-t border-court-line pt-3 font-mono text-xs text-white/50">
-            Player development. Community. Opportunity.
+            Reach out any time — details below
           </div>
         </div>
       </div>
